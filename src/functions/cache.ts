@@ -14,6 +14,7 @@ import {
 import path = require("path");
 
 function cacheId(context: ExtensionContext) {
+    console.log('cachie id', context.extension.id);
     return `__${context.extension.id}_component_cache__`;
 }
 
@@ -36,35 +37,52 @@ export async function updateComponentCache(context: ExtensionContext) {
         getClassComponentFiles(),
     ]);
 
-    for (const file of classComponentFiles) {
-        let relativeViewUri = file.fsPath.split(
-            path.join("View", "Components")
-        )[1];
+    for (const fileGroup of classComponentFiles) {
+        const prefix = fileGroup.prefix ? `${fileGroup.prefix}-` : '';
+        const fileGroupPath = fileGroup.path;
 
-        let descriptor =
-            "x-" +
-            relativeViewUri
-                .replace(".php", "")
-                .replace(path.sep, " ")
-                .replace(path.sep, ".")
-                .replace(/\B(?=[A-Z])/g, "-")
-                .trim()
-                .toLowerCase();
+        for (const file of fileGroup.files) {
+            console.log('file', file.fsPath);
 
-        const variables = await getVariablesFromClassFile(file.fsPath);
+            let relativeViewUri = fileGroupPath ? file.fsPath.split(
+                fileGroupPath
+            )[1]  : file.fsPath.split(
+                path.join("View", "Components")
+            )[1];
 
-        const attributes = variables.map((variable, index) => {
-            return variable.attributeSnippetString(index + 1);
-        });
+            console.log('relativeViewUri', relativeViewUri);
 
-        const classComponent: ClassComponent = {
-            uri: relativeViewUri.replace(path.sep, ""),
-            fsPath: file.fsPath,
-            descriptor: descriptor,
-            snippetString: `<${descriptor} ${attributes.join(" ")} />`,
-        };
+            if(!relativeViewUri) {
+                continue;
+            }
 
-        cache.classComponents.push(classComponent);
+    
+            let descriptor =
+                "x-" +
+                prefix +
+                relativeViewUri
+                    .replace(".php", "")
+                    .replace(path.sep, " ")
+                    .replaceAll(path.sep, fileGroup.delimiter || '.')
+                    .replace(/\B(?=[A-Z])/g, "-")
+                    .trim()
+                    .toLowerCase();
+
+            const variables = await getVariablesFromClassFile(file.fsPath);
+
+            const attributes = variables.map((variable, index) => {
+                return variable.attributeSnippetString(index + 1);
+            });
+
+            const classComponent: ClassComponent = {
+                uri: relativeViewUri.replace(path.sep, ""),
+                fsPath: file.fsPath,
+                descriptor: descriptor,
+                snippetString: `<${descriptor} ${attributes.join(" ")} />`,
+            };
+            
+            cache.classComponents.push(classComponent);
+        }
     }
 
     for (const file of bladeComponentFiles) {
