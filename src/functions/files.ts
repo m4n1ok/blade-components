@@ -3,7 +3,7 @@ import * as path from "path";
 import { undot } from "./strings";
 import { BladeProp, PhpVariable } from "../interfaces/php";
 import { workspace } from "vscode";
-import { getConfigFile } from "./config";
+import { getConfigFiles } from "./config";
 
 export async function fileContainsVariable(
     filePath: string,
@@ -81,29 +81,32 @@ export async function getClassComponentFiles() {
     ];
 
 
-    const extensionConfig = getConfigFile();
+    const extensionConfigFiles = await getConfigFiles();
 
-    if (extensionConfig?.classComponents) {
-        const extraFiles = extensionConfig.classComponents || [];
-        
-        for (let i = 0; i < extraFiles.length; i++) {
-            const filePath = extraFiles[i].path;
-            if(!filePath) {
-                continue;
+    for (let i = 0; i < extensionConfigFiles.length; i++) {
+        const extensionConfig = extensionConfigFiles[i];
+        if (extensionConfig?.classComponents) {
+            const extraFiles = extensionConfig.classComponents || [];
+            
+            for (let i = 0; i < extraFiles.length; i++) {
+                const filePath = extraFiles[i].path;
+                if(!filePath) {
+                    continue;
+                }
+
+                const filePathSuffix = filePath.endsWith('/') ? "**/*.php" : '/**/*.php';
+
+                let _files = await workspace.findFiles(
+                    filePath + filePathSuffix
+                );
+
+                files.push({
+                    prefix: extraFiles[i]?.prefix || null,
+                    delimiter: extraFiles[i].delimiter || null,
+                    path: filePath,
+                    files: _files
+                });
             }
-
-            const filePathSuffix = filePath.endsWith('/') ? "**/*.php" : '/**/*.php';
-
-            let _files = await workspace.findFiles(
-                filePath + filePathSuffix
-            );
-
-            files.push({
-                prefix: extraFiles[i]?.prefix || null,
-                delimiter: extraFiles[i].delimiter || null,
-                path: filePath,
-                files: _files
-            });
         }
     }
 

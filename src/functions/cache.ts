@@ -14,7 +14,6 @@ import {
 import path = require("path");
 
 function cacheId(context: ExtensionContext) {
-    console.log('cachie id', context.extension.id);
     return `__${context.extension.id}_component_cache__`;
 }
 
@@ -42,7 +41,6 @@ export async function updateComponentCache(context: ExtensionContext) {
         const fileGroupPath = fileGroup.path;
 
         for (const file of fileGroup.files) {
-            console.log('file', file.fsPath);
 
             let relativeViewUri = fileGroupPath ? file.fsPath.split(
                 fileGroupPath
@@ -50,7 +48,6 @@ export async function updateComponentCache(context: ExtensionContext) {
                 path.join("View", "Components")
             )[1];
 
-            console.log('relativeViewUri', relativeViewUri);
 
             if(!relativeViewUri) {
                 continue;
