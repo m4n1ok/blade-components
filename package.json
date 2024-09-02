@@ -1,18 +1,24 @@
 {
-  "name": "blade-components",
+  "name": "blade-components-next",
   "displayName": "Laravel Blade Component Support",
   "description": "Laravel blade component auto-completion",
-  "author": {
-    "name": "webdevsavvy",
-    "url": "https://github.com/webdevsavvy"
-  },
+  "authors": [
+      {
+        "name": "webdevsavvy",
+        "url": "https://github.com/webdevsavvy"
+      },
+      {
+        "name": "m4n1ok",
+        "url": "https://github.com/m4n1ok"
+      }
+  ],
   "publisher": "webdevsavvy",
   "private": "true",
   "license": "MIT",
-  "version": "1.2.4",
+  "version": "1.0.0",
   "repository": {
     "type": "github",
-    "url": "https://github.com/webdevsavvy/blade-components"
+    "url": "https://github.com/m4n1ok/blade-components"
   },
   "icon": "images/logo.png",
   "engines": {
